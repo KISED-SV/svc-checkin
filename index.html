@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: #f5f3ef; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; }
+  .container { width: 100%; max-width: 480px; }
+  .header { text-align: center; margin-bottom: 28px; }
+  .logo { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.2em; color: #8a8880; text-transform: uppercase; margin-bottom: 10px; }
+  .logo span { color: #e8534a; }
+  h1 { font-size: 26px; font-weight: 600; color: #1a1a2e; }
+  .subtitle { font-size: 14px; color: #8a8880; margin-top: 6px; }
+  .card { background: #fff; border-radius: 16px; padding: 28px; border: 1px solid #e2dfd8; }
+  .step { display: none; }
+  .step.active { display: block; }
+  .step-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.15em; color: #8a8880; text-transform: uppercase; margin-bottom: 18px; }
+  .field { margin-bottom: 16px; }
+  label { display: block; font-size: 12px; font-weight: 500; color: #8a8880; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+  input, select { width: 100%; padding: 11px 13px; border: 1.5px solid #e2dfd8; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 15px; color: #1a1a2e; background: #f5f3ef; outline: none; appearance: none; }
+  input:focus, select:focus { border-color: #1a1a2e; background: white; }
+  input::placeholder { color: #c0bdb7; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .btn { width: 100%; padding: 13px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500; cursor: pointer; border: none; margin-top: 4px; }
+  .btn-primary { background: #1a1a2e; color: white; }
+  .btn-secondary { background: transparent; color: #8a8880; border: 1.5px solid #e2dfd8; margin-top: 10px; }
+  .preview { background: #f5f3ef; border-radius: 10px; padding: 14px 16px; margin-bottom: 18px; border: 1px solid #e2dfd8; }
+  .preview-name { font-size: 17px; font-weight: 600; color: #1a1a2e; }
+  .preview-meta { font-size: 13px; color: #8a8880; margin-top: 3px; }
+  .success-icon { width: 52px; height: 52px; background: #d8f3dc; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 22px; }
+  .success-title { font-size: 21px; font-weight: 600; color: #2d6a4f; text-align: center; }
+  .success-sub { font-size: 14px; color: #8a8880; text-align: center; margin-top: 5px; }
+  .success-detail { background: #d8f3dc; border-radius: 10px; padding: 13px 15px; margin: 18px 0; font-size: 13px; color: #2d6a4f; line-height: 1.8; }
+  .time-badge { font-family: 'DM Mono', monospace; font-size: 11px; background: #1a1a2e; color: white; padding: 3px 9px; border-radius: 20px; display: inline-block; margin-top: 6px; }
+  .error { font-size: 12px; color: #e8534a; margin-top: 6px; display: none; }
+  .error.show { display: block; }
+  .loading { text-align: center; padding: 20px; color: #8a8880; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="logo"><span>SVC</span> — Startup Venture Campus</div>
+    <h1>Visitor Check-In</h1>
+    <p class="subtitle">Welcome! Quick check-in below.</p>
+  </div>
+  <div class="card">
+
+    <div class="step active" id="step0">
+      <div class="step-label">Step 1 — Identification</div>
+      <div class="field">
+        <label>Email Address</label>
+        <input type="email" id="emailInput" placeholder="your@email.com" />
+        <div class="error" id="emailError">Please enter a valid email.</div>
+      </div>
+      <button class="btn btn-primary" onclick="lookupEmail()">Continue →</button>
+    </div>
+
+    <div class="step" id="stepLoading">
+      <div class="loading">Looking up your info...</div>
+    </div>
+
+    <div class="step" id="step1a">
+      <div class="step-label">Welcome back!</div>
+      <div class="preview" id="returningPreview"></div>
+      <div class="field">
+        <label>Purpose of Visit</label>
+        <select id="purposeReturning">
+          <option value="">Select purpose...</option>
+          <option>Meeting / Networking</option>
+          <option>Event Attendance</option>
+          <option>Office Hours</option>
+          <option>Mentorship Session</option>
+          <option>Co-working</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" onclick="checkInReturning()">Check In →</button>
+      <button class="btn btn-secondary" onclick="notMe()">Not me</button>
+    </div>
+
+    <div class="step" id="step1b">
+      <div class="step-label">Step 2 — Your Information</div>
+      <div class="row2">
+        <div class="field"><label>First Name</label><input type="text" id="firstName" placeholder="Jane" /></div>
+        <div class="field"><label>Last Name</label><input type="text" id="lastName" placeholder="Kim" /></div>
+      </div>
+      <div class="field"><label>Affiliation</label><input type="text" id="affiliation" placeholder="Company or University" /></div>
+      <div class="row2">
+        <div class="field"><label>Position</label><input type="text" id="position" placeholder="Founder, VP..." /></div>
+        <div class="field">
+          <label>Org Type</label>
+          <select id="orgType">
+            <option value="">Select...</option>
+            <option>Startup</option>
+            <option>VC / Investor</option>
+            <option>Corporate</option>
+            <option>Government</option>
+            <option>University</option>
+            <option>Accelerator</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Purpose of Visit</label>
+        <select id="purposeNew">
+          <option value="">Select purpose...</option>
+          <option>Meeting / Networking</option>
+          <option>Event Attendance</option>
+          <option>Office Hours</option>
+          <option>Mentorship Session</option>
+          <option>Co-working</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="error" id="formError">Please fill in all required fields.</div>
+      <button class="btn btn-primary" onclick="registerNew()">Complete Check-In →</button>
+    </div>
+
+    <div class="step" id="step2">
+      <div class="success-icon">✓</div>
+      <div class="success-title">Checked In!</div>
+      <div class="success-sub" id="successSub"></div>
+      <div class="success-detail" id="successDetail"></div>
+      <button class="btn btn-primary" onclick="resetAll()">Done</button>
+    </div>
+
+  </div>
+</div>
+<script>
+  let currentEmail = '';
+
+  function getEmail() { return document.getElementById('emailInput').value.trim().toLowerCase(); }
+  function setStep(id) { document.querySelectorAll('.step').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+
+  function lookupEmail() {
+    const email = getEmail();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      document.getElementById('emailError').classList.add('show'); return;
+    }
+    document.getElementById('emailError').classList.remove('show');
+    currentEmail = email;
+    setStep('stepLoading');
+
+    google.script.run
+      .withSuccessHandler(function(data) {
+        if (data.found) {
+          document.getElementById('returningPreview').innerHTML =
+            '<div class="preview-name">' + data.firstName + ' ' + data.lastName + '</div>' +
+            '<div class="preview-meta">' + data.position + ' · ' + data.affiliation + '</div>' +
+            '<div class="preview-meta" style="margin-top:3px">' + data.orgType + '</div>';
+          window._returning = data;
+          setStep('step1a');
+        } else {
+          setStep('step1b');
+        }
+      })
+      .withFailureHandler(function() { setStep('step1b'); })
+      .lookupVisitor(email);
+  }
+
+  function notMe() { document.getElementById('emailInput').value = ''; setStep('step0'); }
+
+  function now() {
+    return new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+
+  function showSuccess(name, purpose, meta) {
+    document.getElementById('successSub').textContent = name;
+    document.getElementById('successDetail').innerHTML =
+      '<strong>Info:</strong> ' + meta + '<br><strong>Purpose:</strong> ' + purpose +
+      '<br><span class="time-badge">' + now() + '</span>';
+    setStep('step2');
+  }
+
+  function checkInReturning() {
+    const purpose = document.getElementById('purposeReturning').value;
+    if (!purpose) { alert('Please select a purpose.'); return; }
+    const v = window._returning;
+    google.script.run
+      .withSuccessHandler(function() {
+        showSuccess('Good to see you again, ' + v.firstName + '!', purpose, v.position + ' · ' + v.affiliation);
+      })
+      .registerVisitor({ ...v, purpose, type: 'returning' });
+  }
+
+  function registerNew() {
+    const firstName = document.getElementById('firstName').value.trim();
+    const lastName = document.getElementById('lastName').value.trim();
+    const affiliation = document.getElementById('affiliation').value.trim();
+    const position = document.getElementById('position').value.trim();
+    const orgType = document.getElementById('orgType').value;
+    const purpose = document.getElementById('purposeNew').value;
+    if (!firstName || !lastName || !affiliation || !position || !orgType || !purpose) {
+      document.getElementById('formError').classList.add('show'); return;
+    }
+    document.getElementById('formError').classList.remove('show');
+    google.script.run
+      .withSuccessHandler(function() {
+        showSuccess('Nice to meet you, ' + firstName + '!', purpose, position + ' · ' + affiliation);
+      })
+      .registerVisitor({ email: currentEmail, firstName, lastName, affiliation, position, orgType, purpose, type: 'new' });
+  }
+
+  function resetAll() {
+    ['emailInput','firstName','lastName','affiliation','position'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+    ['orgType','purposeNew','purposeReturning'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+    setStep('step0');
+  }
+
+  document.getElementById('emailInput').addEventListener('keydown', e => { if (e.key === 'Enter') lookupEmail(); });
+</script>
+</body>
+</html>
