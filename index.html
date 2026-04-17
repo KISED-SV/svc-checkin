@@ -46,7 +46,6 @@
     <p class="subtitle">Welcome! Quick check-in below.</p>
   </div>
   <div class="card">
-
     <div class="step active" id="step0">
       <div class="step-label">Step 1 — Identification</div>
       <div class="field">
@@ -56,11 +55,9 @@
       </div>
       <button class="btn btn-primary" onclick="lookupEmail()">Continue →</button>
     </div>
-
     <div class="step" id="stepLoading">
       <div class="loading">Looking up your info...</div>
     </div>
-
     <div class="step" id="step1a">
       <div class="step-label">Welcome back!</div>
       <div class="preview" id="returningPreview"></div>
@@ -79,7 +76,6 @@
       <button class="btn btn-primary" onclick="checkInReturning()">Check In →</button>
       <button class="btn btn-secondary" onclick="notMe()">Not me</button>
     </div>
-
     <div class="step" id="step1b">
       <div class="step-label">Step 2 — Your Information</div>
       <div class="row2">
@@ -118,7 +114,6 @@
       <div class="error" id="formError">Please fill in all required fields.</div>
       <button class="btn btn-primary" onclick="registerNew()">Complete Check-In →</button>
     </div>
-
     <div class="step" id="step2">
       <div class="success-icon">✓</div>
       <div class="success-title">Checked In!</div>
@@ -126,7 +121,6 @@
       <div class="success-detail" id="successDetail"></div>
       <button class="btn btn-primary" onclick="resetAll()">Done</button>
     </div>
-
   </div>
 </div>
 <script>
@@ -203,7 +197,9 @@
     setStep('step0');
   }
 
-  document.getElementById('emailInput').addEventListener('keydown', e => { if (e.key === 'Enter') lookupEmail(); });
+  window.onload = function() {
+    document.getElementById('emailInput').addEventListener('keydown', e => { if (e.key === 'Enter') lookupEmail(); });
+  };
 </script>
 </body>
 </html>
